@@ -1,0 +1,46 @@
+{
+    "name": "noi/imap-idle",
+    "description": "An implementation of the IMAP IDLE (RFC 2177) based on the pear/Net_IMAP",
+    "license": "MIT",
+    "type": "library",
+    "keywords": ["library", "net", "mail", "imap", "idle", "imap_idle", "PEAR", "net_imap"],
+    "authors": [
+        {
+            "name": "Akihiro Yamanoi",
+            "email": "akihiro.yamanoi@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "pear-pear/Net_IMAP": "*"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "pear-pear/Net_IMAP",
+                "version": "1.1.2",
+                "source": {
+                    "type": "git",
+                    "url": "https://github.com/pear/Net_IMAP.git",
+                    "reference": "1.1.2"
+                },
+                "require": {
+                    "pear-pear/Auth_SASL": ">=1.02",
+                    "pear-pear/Net_Socket": ">=1.0.8"
+                },
+                "autoload": {
+                    "classmap": ["./Net/"]
+                },
+                "include-path": ["./"]
+            }
+        },
+        {
+            "type": "pear",
+            "url": "pear.php.net"
+        }
+    ],
+    "autoload": {
+        "classmap": [ "lib/" ]
+    }
+}
