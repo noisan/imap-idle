@@ -19,9 +19,12 @@ class ImapIdleClientTest extends \ImapIdleClientTestCase
                 ->disableOriginalConstructor()
                 ->getMock();
 
+        // inject a mock socket
         $imap->Net_IMAPProtocol();
         $imap->_socket = $socket;
         $imap->_connected = true;
+        $imap->_lastCmdID = 'A0001';
+        //$imap->setPrintErrors(true);
 
         return $imap;
     }
@@ -43,5 +46,106 @@ class ImapIdleClientTest extends \ImapIdleClientTestCase
 
         // Act
         $this->imap->idle();
+    }
+
+    public function testIdle_ReturnsFalse_Timeout()
+    {
+        // Setup
+        $this->mockServer->expects($this->any())
+                ->method('select')
+                ->will($this->returnValue(false));
+
+        $this->mockServer->expects($this->any())
+                ->method('gets')
+                ->will($this->verifyConsecutiveCalls(array(
+                    $this->returnValue("+ idling\r\n"),
+                    $this->returnValue($this->imap->getLastCmdId() . " OK IDLE terminated (Success)\r\n"),
+                )));
+
+        // Act
+        $result = $this->imap->idle();
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    public function testIdle_ReturnsTrue_NewMailArrival()
+    {
+        // Setup
+        $this->mockServer->expects($this->any())
+                ->method('select')
+                ->will($this->returnValue(true));
+
+        $this->mockServer->expects($this->any())
+                ->method('gets')
+                ->will($this->verifyConsecutiveCalls(array(
+                    $this->returnValue("+ idling\r\n"),
+                    $this->returnValue("* 1 EXISTS\r\n"),
+                    $this->returnValue($this->imap->getLastCmdId() . " OK IDLE terminated (Success)\r\n"),
+                )));
+
+        // Act
+        $result = $this->imap->idle();
+
+        // Assert
+        $this->assertTrue($result);
+    }
+
+    public function testIdle_ReturnsTrue_MailExpunction()
+    {
+        // Setup
+        $this->mockServer->expects($this->any())
+                ->method('select')
+                ->will($this->returnValue(true));
+
+        $this->mockServer->expects($this->any())
+                ->method('gets')
+                ->will($this->verifyConsecutiveCalls(array(
+                    $this->returnValue("+ idling\r\n"),
+                    $this->returnValue("* 2 EXPUNGE\r\n"),
+                    $this->returnValue($this->imap->getLastCmdId() . " OK IDLE terminated (Success)\r\n"),
+                )));
+
+        // Act
+        $result = $this->imap->idle();
+
+        // Assert
+        $this->assertTrue($result);
+    }
+
+    public function testIdle_ReturnsTrue_ArrivalAndExpunction()
+    {
+        // Setup
+        $this->mockServer->expects($this->any())
+                ->method('select')
+                ->will($this->returnValue(true));
+
+        $this->mockServer->expects($this->any())
+                ->method('gets')
+                ->will($this->verifyConsecutiveCalls(array(
+                    $this->returnValue("+ idling\r\n"),
+                    $this->returnValue("* 3 EXPUNGE\r\n"),
+                    $this->returnValue("* 2 EXISTS\r\n"),
+                    $this->returnValue($this->imap->getLastCmdId() . " OK IDLE terminated (Success)\r\n"),
+                )));
+
+        // Act
+        $result = $this->imap->idle();
+
+        // Assert
+        $this->assertTrue($result);
+    }
+
+    public function testIdle_WillWaitForSpecifiedTimeout()
+    {
+        // Setup
+        $timeout = 300;
+
+        // Expect
+        $this->mockServer->expects($this->once())
+                ->method('select')->with($this->anything(), $timeout);
+
+        // Act
+        $this->imap->idle($timeout);
     }
 }
