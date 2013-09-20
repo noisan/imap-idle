@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- see http://www.phpunit.de/wiki/Documentation -->
+<phpunit
+        backupGlobals="false"
+        backupStaticAttributes="false"
+        syntaxCheck="false"
+        stopOnFailure="false"
+        colors="true"
+        strict="true"
+        verbose="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        timeoutForSmallTests="5"
+        processIsolation="false"
+        bootstrap="tests/bootstrap.php">
+    <php>
+        <ini name="memory_limit" value="-1" />
+    </php>
+
+    <testsuites>
+        <testsuite name="ImapIdleClient Test Suite">
+            <directory suffix="Test.php">./tests/</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
