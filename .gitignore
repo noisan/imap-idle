@@ -2,4 +2,5 @@ composer.lock
 composer.phar
 phpunit.xml
 tests/lib/
+tests/imap_idle_demo.conf.php
 vendor/

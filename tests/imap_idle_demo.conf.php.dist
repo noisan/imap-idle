@@ -1,0 +1,9 @@
+<?php
+define('DEMO_IMAP_HOST',    'your.imap.host');
+define('DEMO_IMAP_PORT',    993);
+
+define('DEMO_IMAP_USER',    'username');
+define('DEMO_IMAP_PASS',    'password');
+
+define('DEMO_IMAP_MAILBOX', 'INBOX');
+define('DEMO_IMAP_IDLE_TIMEOUT', 300);
