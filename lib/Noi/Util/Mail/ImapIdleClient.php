@@ -5,6 +5,25 @@ use Net_IMAP;
 use PEAR_Error;
 
 /**
+ * ImapIdleClient extends pear/Net_IMAP and provides the IMAP IDLE command (RFC 2177).
+ *
+ * Usage:
+ *
+ * <code>
+ * <?php
+ * $imap = new \Noi\Util\Mail\ImapIdleClient('your.imap.host', 993, true, 'UTF-8');
+ * $imap->login('username', 'password');
+ * $imap->selectMailbox('INBOX');
+ *
+ * while (!$imap->idle(300) instanceof \PEAR_Error) {
+ *     $mails = $imap->search('UNSEEN', true);
+ *     foreach ($imap->getMessages($mails) as $mail) {
+ *         // ...
+ *     }
+ * }
+ * </code>
+ *
+ * @see http://tools.ietf.org/html/rfc2177
  *
  * @author Akihiro Yamanoi <akihiro.yamanoi@gmail.com>
  */
@@ -15,6 +34,16 @@ class ImapIdleClient extends Net_IMAP
     private $idling;
     private $maxIdleTime;
 
+    /**
+     * Uses the IMAP IDLE command (RFC 2177).
+     *
+     * @see http://tools.ietf.org/html/rfc2177
+     *
+     * @param int|null $maxIdleTime Number of seconds for timeout.
+     * @return boolean|\PEAR_Error TRUE if the selected mailbox is updated,
+     *                             FALSE if $maxIdleTime expires.
+     *                             PEAR_Error on error.
+     */
     public function idle($maxIdleTime = null)
     {
         $this->idling = true;
