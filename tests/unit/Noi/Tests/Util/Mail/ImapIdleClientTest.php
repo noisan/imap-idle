@@ -1,6 +1,8 @@
 <?php
 namespace Noi\Tests\Util\Mail;
 
+use PEAR_Error;
+
 class ImapIdleClientTest extends \ImapIdleClientTestCase
 {
     private $imap;
@@ -147,5 +149,44 @@ class ImapIdleClientTest extends \ImapIdleClientTestCase
 
         // Act
         $this->imap->idle($timeout);
+    }
+
+    public function testIdle_ReturnsErrorObject_SocketDisconnection()
+    {
+        // Setup
+        $this->mockServer->expects($this->any())
+                ->method('select')
+                ->will($this->returnValue(true));
+
+        $this->mockServer->expects($this->any())
+                ->method('gets')
+                ->will($this->returnValue(''));
+
+        // Act
+        $result = $this->imap->idle();
+
+        // Assert
+        $this->assertInstanceOf('PEAR_Error', $result);
+    }
+
+    public function testIdle_ReturnsErrorObject_UnknowResponse()
+    {
+        // Setup
+        $this->mockServer->expects($this->any())
+                ->method('select')
+                ->will($this->returnValue(true));
+
+        $this->mockServer->expects($this->any())
+                ->method('gets')
+                ->will($this->verifyConsecutiveCalls(array(
+                    $this->returnValue("+ idling\r\n"),
+                    $this->returnValue("* BYE Session expired, please login again.\r\n"),
+                )));
+
+        // Act
+        $result = $this->imap->idle();
+
+        // Assert
+        $this->assertInstanceOf('PEAR_Error', $result);
     }
 }

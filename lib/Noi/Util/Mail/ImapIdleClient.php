@@ -2,6 +2,7 @@
 namespace Noi\Util\Mail;
 
 use Net_IMAP;
+use PEAR_Error;
 
 /**
  *
@@ -10,14 +11,28 @@ use Net_IMAP;
 class ImapIdleClient extends Net_IMAP
 {
     const RESPONSE_TIMEOUT = 'IDLE_ABORTED';
+
     private $idling;
     private $maxIdleTime;
 
-    public function idle($maxIdleTime = null) {
+    public function idle($maxIdleTime = null)
+    {
         $this->idling = true;
         $this->maxIdleTime = $maxIdleTime;
 
         $ret = $this->_genericCommand('IDLE');
+
+        if ($ret instanceof PEAR_Error) {
+            // this means that the socket is already disconnected
+            return $ret;
+        }
+
+        if (strtoupper($ret['RESPONSE']['CODE']) != 'OK') {
+            // unknown response type
+            // probably we got disconnected before sending the DONE command
+            return new PEAR_Error($ret['RESPONSE']['CODE'] .
+                    ', ' . $ret['RESPONSE']['STR_CODE']);
+        }
 
         if (isset($ret['PARSED'][0]['COMMAND']) and
                 ($ret['PARSED'][0]['COMMAND'] == self::RESPONSE_TIMEOUT)) {
@@ -29,7 +44,10 @@ class ImapIdleClient extends Net_IMAP
     protected function done()
     {
         $this->idling = false;
-        $this->_send('DONE' . "\r\n");
+        $ret = $this->_send('DONE' . "\r\n");
+        if ($ret instanceof PEAR_Error) {
+            $this->onError($ret);
+        }
     }
 
     // override
@@ -41,6 +59,10 @@ class ImapIdleClient extends Net_IMAP
 
         if ($this->_socket->select(NET_SOCKET_READ, $this->maxIdleTime)) {
             $lastline = parent::_recvLn();
+
+            if ($lastline instanceof PEAR_Error) {
+                return $this->onError($lastline);
+            }
 
             if ($this->isMailboxUpdated($lastline)) {
                 $this->done();
@@ -74,5 +96,13 @@ class ImapIdleClient extends Net_IMAP
             return array($token => rtrim(substr($this->_getToEOL($str, false), 1)));
         }
         return parent::_retrParsedResponse($str, $token, $previousToken);
+    }
+
+    protected function onError($error)
+    {
+        return $error;
+        /*
+        throw new UnexpectedValueException($error->getMessage());
+         */
     }
 }
