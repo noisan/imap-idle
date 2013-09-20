@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "pear-pear/Net_IMAP": "*"
+        "pear-pear/Net_IMAP": "*",
+        "pear-pear/Auth_SASL": "*"
     },
     "repositories": [
         {
@@ -26,7 +27,6 @@
                     "reference": "1.1.2"
                 },
                 "require": {
-                    "pear-pear/Auth_SASL": ">=1.02",
                     "pear-pear/Net_Socket": ">=1.0.8"
                 },
                 "autoload": {
