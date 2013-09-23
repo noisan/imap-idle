@@ -14,7 +14,7 @@ pear/Net_IMAPを拡張してIMAP IDLEコマンド([RFC 2177][])用メソッド�
 ```json
 {
     "require": {
-        "noi/imap-idle": "dev-master"
+        "noi/imap-idle": "*"
     },
     "repositories": [
         {
