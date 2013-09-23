@@ -14,7 +14,7 @@ Add the following lines to your *composer.json* file:
 ```json
 {
     "require": {
-        "noi/imap-idle": "dev-master"
+        "noi/imap-idle": "*"
     },
     "repositories": [
         {
