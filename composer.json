@@ -12,29 +12,10 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "pear-pear/Net_IMAP": "*",
-        "pear-pear/Auth_SASL": "*"
+        "pear-pear.php.net/Net_IMAP": "*",
+        "pear-pear.php.net/Auth_SASL": "*"
     },
     "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "pear-pear/Net_IMAP",
-                "version": "1.1.2",
-                "source": {
-                    "type": "git",
-                    "url": "https://github.com/pear/Net_IMAP.git",
-                    "reference": "1.1.2"
-                },
-                "require": {
-                    "pear-pear/Net_Socket": ">=1.0.8"
-                },
-                "autoload": {
-                    "classmap": ["./Net/"]
-                },
-                "include-path": ["./"]
-            }
-        },
         {
             "type": "pear",
             "url": "pear.php.net"
